@@ -1,11 +1,13 @@
 from wmem_system import WinSys
-from wmem_structs import MEMORY_BASIC_INFORMATION, ProcPage, ProcModule
+from wmem_structs import MEMORY_BASIC_INFORMATION, MODULEINFO
+from wmem_scannable import ProcPage, ProcModule
 import win32api
 import win32process
 import win32con
 import pywintypes
-import ctypes
+from ctypes import *
 from ctypes.wintypes import *
+
 
 class WinProc:
     """
@@ -28,7 +30,8 @@ class WinProc:
         self.gather_info()
 
     def __post_init__(self):
-        ctypes.windll.kernel32.VirtualQueryEx.argtypes = [ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t, ctypes.c_size_t]
+        ctypes.windll.kernel32.VirtualQueryEx.argtypes = [HANDLE, LPCVOID, c_size_t, c_size_t]
+        ctypes.windll.psapi.GetModuleInformation.argtypes = [HANDLE, HMODULE, ctypes.POINTER(MODULEINFO), DWORD]
 
 
     def __filter_processes(self, process_name, process_id):
@@ -47,17 +50,13 @@ class WinProc:
     def print_modules(self):
         print('Module list:')
         for module in self.modules:
-            print(module.path)
-            print(f'{module.base_address} - {module.base_address + module.size}')
+            module.print()
             print('^^^^^^^^^^^^')
 
     def print_pages(self):
-        page_size = 0
         print('Memory page list:')
         for page in self.pages:
-            page_size = page_size + page.size
-            print(f'{page.base_address} - {page.base_address + page.size}')
-        print(f'Total: {page_size} Bytes')
+            page.print()
         print('------------')
 
     def print_process_detailed(self):
@@ -87,10 +86,3 @@ class WinProc:
             if mbi.State == win32con.MEM_COMMIT and mbi.Protect != win32con.PAGE_NOACCESS and mbi.Protect != win32con.PAGE_GUARD:
                 self.pages.append(ProcPage(mbi.BaseAddress, mbi.RegionSize))
             current_base += mbi.RegionSize
-
-
-
-
-
-test = WinProc('dwm.exe')
-test.print_modules()
