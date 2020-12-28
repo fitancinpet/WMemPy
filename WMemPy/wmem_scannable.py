@@ -4,17 +4,21 @@ from wmem_structs import MODULEINFO
 import os
 
 class ProcScannable:
+    """
+    Scannable interface has to be implemented if you want to execute scans on the class.
+    """
     def get_bounds(self):
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
 class ProcPage(ProcScannable):
     """
-    Represents a single memory page of a process.
+    Represents a single virtual memory page of a process.
     """
     def __init__(self, base, size):
         self.base_address = base
         self.size = size
 
+    # Page is represnted by base address and size only, this should never represent physical memory page
     def get_bounds(self):
         return [self.base_address, self.size]
 
@@ -24,7 +28,7 @@ class ProcPage(ProcScannable):
 
 class ProcModule(ProcScannable):
     """
-    Represents a single memory page of a process.
+    Represents a single module loaded by process.
     """
     def __init__(self, proc_handle, handle):
         self.handle = handle
@@ -35,6 +39,8 @@ class ProcModule(ProcScannable):
         self.size = mi.SizeOfImage
         self.entry = mi.EntryPoint
 
+    # Module has path (name), base address, size and entrypoint
+    # Entrypoint is what is called when the dll/so is loaded, but it can be obfuscated
     def get_bounds(self):
         return [self.base_address, self.size]
 
