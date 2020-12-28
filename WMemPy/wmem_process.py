@@ -1,6 +1,7 @@
 from wmem_system import WinSys
 from wmem_structs import MEMORY_BASIC_INFORMATION, MODULEINFO
 from wmem_scannable import ProcPage, ProcModule
+from wmem_scanner import ProcScanner
 import win32api
 import win32process
 import win32con
@@ -26,13 +27,14 @@ class WinProc:
             raise Exception('Process not found.')
         else:
             raise Exception('Unable to determine unique process from name.', filtered_proc_list)
+        self.scanner = ProcScanner(self)
         self.__post_init__()
         self.gather_info()
 
     def __post_init__(self):
         ctypes.windll.kernel32.VirtualQueryEx.argtypes = [HANDLE, LPCVOID, c_size_t, c_size_t]
         ctypes.windll.psapi.GetModuleInformation.argtypes = [HANDLE, HMODULE, ctypes.POINTER(MODULEINFO), DWORD]
-
+        ctypes.windll.kernel32.ReadProcessMemory.argtypes = [HANDLE, LPCVOID, LPCVOID, c_size_t, ctypes.POINTER(c_size_t)]
 
     def __filter_processes(self, process_name, process_id):
         proc_list = WinSys.process_list()
@@ -45,7 +47,7 @@ class WinProc:
     def print_process(self):
         print(f'{self.proc_name}')
         print(f'PID: {self.proc_id}')
-        print(f'Handle: {self.handle.__int__()}')
+        print(f'Handle: {self.get_handle()}')
 
     def print_modules(self):
         print('Module list:')
@@ -82,7 +84,10 @@ class WinProc:
         self.pages = []
         current_base = 0
         mbi = MEMORY_BASIC_INFORMATION()
-        while ctypes.windll.kernel32.VirtualQueryEx(self.handle.__int__(), current_base, ctypes.addressof(mbi), ctypes.sizeof(mbi)) > 0:
+        while ctypes.windll.kernel32.VirtualQueryEx(self.get_handle(), current_base, ctypes.addressof(mbi), ctypes.sizeof(mbi)) > 0:
             if mbi.State == win32con.MEM_COMMIT and mbi.Protect != win32con.PAGE_NOACCESS and mbi.Protect != win32con.PAGE_GUARD:
                 self.pages.append(ProcPage(mbi.BaseAddress, mbi.RegionSize))
             current_base += mbi.RegionSize
+
+    def get_handle(self):
+        return self.handle.__int__()

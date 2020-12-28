@@ -1,12 +1,13 @@
 import win32process
 import ctypes
 from wmem_structs import MODULEINFO
+import os
 
-class Scannable:
+class ProcScannable:
     def get_bounds(self):
-        raise NotImplementedError('Interface Scannable not implemented.')
+        raise NotImplementedError('Interface ProcScannable not implemented.')
 
-class ProcPage(Scannable):
+class ProcPage(ProcScannable):
     """
     Represents a single memory page of a process.
     """
@@ -21,7 +22,7 @@ class ProcPage(Scannable):
         print(f'{hex(self.base_address)} - {hex(self.base_address + self.size)}')
 
 
-class ProcModule(Scannable):
+class ProcModule(ProcScannable):
     """
     Represents a single memory page of a process.
     """
@@ -36,6 +37,9 @@ class ProcModule(Scannable):
 
     def get_bounds(self):
         return [self.base_address, self.size]
+
+    def get_name(self):
+        return os.path.basename(self.path)
 
     def print(self):        
         print(self.path)
