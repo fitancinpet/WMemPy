@@ -98,3 +98,61 @@ class ProcScanner:
         # Generate numpy array from ASCII string
         to_find = self.array_from_ascii(ascii)
         return self.byte_scan(scannable, to_find)
+
+    def ASCII_list_arr(self, scannable_arr):
+        result = []
+        for scannable in scannable_array:
+            result.append(self.ASCII_list(scannable))
+        return result
+
+    # Creates a list of all ASCII strings in the scannable
+    def ASCII_list(self, scannable, symbols=False, min_length=3):
+        result = []
+        # Memory bounds to scan (either module or valid memory page)
+        bounds = scannable.get_bounds()
+        # Allocate buffer for single ReadProcessMemory operation
+        buffer = ctypes.create_string_buffer(bounds[1])
+        # How many bytes were read by the syscall
+        bytes_read = ctypes.c_size_t()
+        # RPM has to be called in a single call because it is extremely inefficient syscall
+        # In regular WinApi, if the call fails, it returns 0 (you use GetLastError to get the problem)
+        # In ctypes version, it can throw exception as well as fail with 0 and also partially fail, what a fun!
+        try:
+            if not ctypes.windll.kernel32.ReadProcessMemory(self.process.get_handle(), bounds[0], buffer, bounds[1], ctypes.byref(bytes_read)):
+                # Regular fail (for example called on null handle)
+                return -1
+        except Exception:
+            # Exception fail I haven't been able to produce
+            return -1
+        if bytes_read.value != bounds[1]:
+            # Partial RMP fail, only some data are read, this should not happen normally, only in the kernel call versions (Zw)
+            return -1
+        # Convert the char buffer to numpy array
+        memory = np.ctypeslib.as_array(buffer).view(np.uint8)
+
+        # For symbols, only remove special symbols like line endings and reserved bytes
+        if symbols:
+            condition = (memory <= 32) | (memory >= 127)
+        # Otherwise, only allow a-z A-Z 0-9
+        else:
+            condition = (memory <= 47) | ((memory >= 58) & (memory <= 64)) | ((memory >= 91) & (memory <= 96)) | (memory >= 123)
+        # Apply condition
+        memory = np.where(condition, 0, memory)
+
+        # Get bitmap for zero elements
+        iszero = np.concatenate(([0], np.greater(memory, 0).view(np.int8), [0]))
+        # Diff gets us boundaries
+        absdiff = np.abs(np.diff(iszero))
+        # Split boundaries into separate array for each word
+        ranges = np.where(absdiff == 1)[0].reshape(-1, 2)
+        
+        # Iterate over all potential words
+        for word in ranges:
+            # Filter by length
+            if word[1] - word[0] >= min_length:
+                # Get the ASCII byte array
+                ascii_word = memory[word[0]:word[1]]
+                # Convert it to string and append it to results
+                result.append("".join([chr(item) for item in ascii_word]))
+
+        return result
