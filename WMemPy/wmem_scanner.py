@@ -73,8 +73,8 @@ class ProcScanner:
         for scannable in scannable_array:
             result = self.ASCII_scan(scannable, ascii)
             if not (result is None):
-                return result
-        return None
+                return result, scannable
+        return None, None
 
     # Checks if memory range contains given ASCII string
     def ASCII_scan(self, scannable, ascii):

@@ -1,5 +1,6 @@
 import win32process
 import ctypes
+import numpy as np
 from wmem_structs import MODULEINFO
 import os
 
@@ -13,10 +14,13 @@ class ProcScannable:
     def read(self):
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
-    def read_dtype(self):
+    def read_from(self, address):
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
-    def write_dtype(self):
+    def read_dtype(self, address, dtype):
+        raise NotImplementedError('Interface ProcScannable not implemented.')
+
+    def write_dtype(self, address, dtype):
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
 class ProcPage(ProcScannable):
@@ -35,6 +39,13 @@ class ProcPage(ProcScannable):
     # Read the entire page
     def read(self):
         return self.process.reader.byte_arr(self.base_address, self.size)
+
+    # Read the entire page
+    def read_from(self, address):
+        size = self.size - address
+        if size > 0:
+            return self.process.reader.byte_arr(self.base_address + address, self.size - address)
+        return np.empty(shape=(0, 0))
 
     # Read any data type from the page
     def read_dtype(self, address, dtype):
@@ -70,6 +81,13 @@ class ProcModule(ProcScannable):
     # Read the entire module
     def read(self):
         return self.process.reader.byte_arr(self.base_address, self.size)
+
+    # Read the entire page
+    def read_from(self, address):
+        size = self.size - address
+        if size > 0:
+            return self.process.reader.byte_arr(self.base_address + address, self.size - address)
+        return np.empty(shape=(0, 0))
 
     # Read any data type from the page
     def read_dtype(self, address, dtype):
