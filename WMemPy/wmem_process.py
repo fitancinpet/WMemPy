@@ -78,16 +78,19 @@ class WinProc:
     # Prints all loaded modules
     def print_modules(self):
         print('Module list:')
+        print('-------------------')
         for module in self.modules:
             module.print()
             print('^^^^^^^^^^^^')
+        print('-------------------')
 
     # Prints all valid memory pages
     def print_pages(self):
         print('Memory page list:')
+        print('-------------------')
         for page in self.pages:
             page.print()
-        print('------------')
+        print('-------------------')
 
     # Prints full process information, this can be very long
     def print_process_detailed(self):

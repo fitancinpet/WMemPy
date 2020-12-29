@@ -1,5 +1,6 @@
 import sys
 sys.path.insert(1, 'WMemPy')
+sys.path.insert(1, '../../WMemPy')
 from wmem_process import WinProc
 from ctypes import wintypes
 import ctypes
