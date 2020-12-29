@@ -99,11 +99,13 @@ class ProcScanner:
         to_find = self.array_from_ascii(ascii)
         return self.byte_scan(scannable, to_find)
 
-    def ASCII_list_arr(self, scannable_arr):
+    def ASCII_list_arr(self, scannable_arr, symbols=False, min_length=3):
         result = []
-        for scannable in scannable_array:
-            result.append(self.ASCII_list(scannable))
-        return result
+        for scannable in scannable_arr:
+            tmp = self.ASCII_list(scannable, symbols, min_length)
+            if tmp != -1 and len(tmp) > 0:
+                result.append(tmp)
+        return [item for sublist in result for item in sublist]
 
     # Creates a list of all ASCII strings in the scannable
     def ASCII_list(self, scannable, symbols=False, min_length=3):
