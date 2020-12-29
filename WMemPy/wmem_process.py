@@ -81,7 +81,7 @@ class WinProc:
         print('-------------------')
         for module in self.modules:
             module.print()
-            print('^^^^^^^^^^^^')
+            print('')
         print('-------------------')
 
     # Prints all valid memory pages

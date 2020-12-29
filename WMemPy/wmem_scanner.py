@@ -57,7 +57,7 @@ class ProcScanner:
     def AOB_scan_arr(self, scannable_array, pattern, base=16, separator=' '):
         for scannable in scannable_array:
             result = self.AOB_scan(scannable, pattern, base, separator)
-            if result >= 0:
+            if not (result is None):
                 return result
         return None
 
@@ -72,7 +72,7 @@ class ProcScanner:
     def ASCII_scan_arr(self, scannable_array, ascii):
         for scannable in scannable_array:
             result = self.ASCII_scan(scannable, ascii)
-            if result >= 0:
+            if not (result is None):
                 return result
         return None
 
