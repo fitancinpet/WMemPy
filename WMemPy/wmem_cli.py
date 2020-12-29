@@ -81,18 +81,18 @@ def text_scan(process, text):
     if result is None:
         print('Text does not exist.')
     else:
-        print(f'Text found at: {hex(scannable.base_address)} + {hex(result)}')
+        print(f'Text found at: {hex(scannable.base_address)} + {hex(result)} = {hex(scannable.base_address + result)}')
 
 def aob_scan(process, aob):
     scannable_array = array_from_where(process, aob[1])
     try:
-        result = process.scanner.AOB_scan_arr(scannable_array, aob[0], aob[2], aob[3])
+        result, scannable = process.scanner.AOB_scan_arr(scannable_array, aob[0], aob[2], aob[3])
     except Exception:
         raise click.BadParameter('Invalid AOB scan parameters.')
     if result is None:
         print('Pattern does not exist.')
     else:
-        print(f'Pattern found at: {hex(result)}')
+        print(f'Pattern found at: {hex(scannable.base_address)} + {hex(result)} = {hex(scannable.base_address + result)}')
 
 def process_app(process, modules, pages, aob, text, list_text, view):
     if modules:

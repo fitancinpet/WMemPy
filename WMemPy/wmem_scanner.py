@@ -58,8 +58,8 @@ class ProcScanner:
         for scannable in scannable_array:
             result = self.AOB_scan(scannable, pattern, base, separator)
             if not (result is None):
-                return result
-        return None
+                return result, scannable
+        return None, None
 
     # Checks if memory range contains given pattern
     def AOB_scan(self, scannable, pattern, base=16, separator=' '):
