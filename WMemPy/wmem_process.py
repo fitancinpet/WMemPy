@@ -2,6 +2,7 @@ from wmem_system import WinSys
 from wmem_structs import MEMORY_BASIC_INFORMATION, MODULEINFO
 from wmem_scannable import ProcPage, ProcModule
 from wmem_scanner import ProcScanner
+from wmem_memory import ProcReader, ProcWriter
 import win32api
 import win32process
 import win32con
@@ -40,8 +41,12 @@ class WinProc:
         else:
         # If there are multiple processes, we cannot just take first one, the process has to be specified by PID.
             raise Exception('Unable to determine unique process from name.', filtered_proc_list)
-        # Create scanner and let it access self
+        # Create scanner and create a link between them
         self.scanner = ProcScanner(self)
+        # Create reader
+        self.reader = ProcReader(self)
+        # Create writer
+        self.writer = ProcWriter(self)
         # Post init setup (methods and imports)
         self.__post_init__()
         # Grab info about the process (modules and pages)
@@ -109,7 +114,7 @@ class WinProc:
         # https://docs.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocessmodulesex
         # win32py provides very nice wrapper which returns the module list through return value
         for module in win32process.EnumProcessModulesEx(self.handle, win32process.LIST_MODULES_ALL):
-            self.modules.append(ProcModule(self.handle, module))
+            self.modules.append(ProcModule(self, module))
 
     # Fills self.pages with currently valid virtual memory pages of the process
     # This is useful for full memory scans, since the address space is limited only by the architecture
@@ -122,7 +127,7 @@ class WinProc:
         # Iterates over memory regions and adds the valid ones into our list of pages
         while ctypes.windll.kernel32.VirtualQueryEx(self.get_handle(), current_base, ctypes.addressof(mbi), ctypes.sizeof(mbi)) > 0:
             if mbi.State == win32con.MEM_COMMIT and mbi.Protect != win32con.PAGE_NOACCESS and mbi.Protect != win32con.PAGE_GUARD:
-                self.pages.append(ProcPage(mbi.BaseAddress, mbi.RegionSize))
+                self.pages.append(ProcPage(self, mbi.BaseAddress, mbi.RegionSize))
             current_base += mbi.RegionSize
 
     # Since handle is wrapped in PyHandle so that it is automatically closed (CloseHandle) upon destruction

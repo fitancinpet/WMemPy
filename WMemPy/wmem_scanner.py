@@ -5,7 +5,7 @@ import sys
 
 class ProcScanner:
     """
-    Allows to run scans above Scannables
+    Allows to run scans on Scannables
     """
     def __init__(self, proc):
         self.process = proc
@@ -43,30 +43,13 @@ class ProcScanner:
                 j = 0
 
         # If we went through the whole thing without success, fail
-        return -1
+        return None
 
     def byte_scan(self, scannable, byte_arr):
-        # Memory bounds to scan (either module or valid memory page)
-        bounds = scannable.get_bounds()
-        # Allocate buffer for single ReadProcessMemory operation
-        buffer = ctypes.create_string_buffer(bounds[1])
-        # How many bytes were read by the syscall
-        bytes_read = ctypes.c_size_t()
-        # RPM has to be called in a single call because it is extremely inefficient syscall
-        # In regular WinApi, if the call fails, it returns 0 (you use GetLastError to get the problem)
-        # In ctypes version, it can throw exception as well as fail with 0 and also partially fail, what a fun!
-        try:
-            if not ctypes.windll.kernel32.ReadProcessMemory(self.process.get_handle(), bounds[0], buffer, bounds[1], ctypes.byref(bytes_read)):
-                # Regular fail (for example called on null handle)
-                return -1
-        except Exception:
-            # Exception fail I haven't been able to produce
-            return -1
-        if bytes_read.value != bounds[1]:
-            # Partial RMP fail, only some data are read, this should not happen normally, only in the kernel call versions (Zw)
-            return -1
-        # Convert the char buffer to numpy array
-        memory = np.ctypeslib.as_array(buffer).view(np.uint8)
+        # Read the scannable's memory
+        memory = scannable.read()
+        if memory is None:
+            return None
         # Check if pattern is in memory
         return self.is_subsequence(memory, byte_arr)
 
@@ -76,7 +59,7 @@ class ProcScanner:
             result = self.AOB_scan(scannable, pattern, base, separator)
             if result >= 0:
                 return result
-        return -1
+        return None
 
     # Checks if memory range contains given pattern
     def AOB_scan(self, scannable, pattern, base=16, separator=' '):
@@ -91,7 +74,7 @@ class ProcScanner:
             result = self.ASCII_scan(scannable, ascii)
             if result >= 0:
                 return result
-        return -1
+        return None
 
     # Checks if memory range contains given ASCII string
     def ASCII_scan(self, scannable, ascii):
@@ -103,35 +86,17 @@ class ProcScanner:
         result = []
         for scannable in scannable_arr:
             tmp = self.ASCII_list(scannable, symbols, min_length)
-            if tmp != -1 and len(tmp) > 0:
+            if not (tmp is None) and len(tmp) > 0:
                 result.append(tmp)
         return [item for sublist in result for item in sublist]
 
     # Creates a list of all ASCII strings in the scannable
     def ASCII_list(self, scannable, symbols=False, min_length=3):
-        result = []
-        # Memory bounds to scan (either module or valid memory page)
-        bounds = scannable.get_bounds()
-        # Allocate buffer for single ReadProcessMemory operation
-        buffer = ctypes.create_string_buffer(bounds[1])
-        # How many bytes were read by the syscall
-        bytes_read = ctypes.c_size_t()
-        # RPM has to be called in a single call because it is extremely inefficient syscall
-        # In regular WinApi, if the call fails, it returns 0 (you use GetLastError to get the problem)
-        # In ctypes version, it can throw exception as well as fail with 0 and also partially fail, what a fun!
-        try:
-            if not ctypes.windll.kernel32.ReadProcessMemory(self.process.get_handle(), bounds[0], buffer, bounds[1], ctypes.byref(bytes_read)):
-                # Regular fail (for example called on null handle)
-                return -1
-        except Exception:
-            # Exception fail I haven't been able to produce
-            return -1
-        if bytes_read.value != bounds[1]:
-            # Partial RMP fail, only some data are read, this should not happen normally, only in the kernel call versions (Zw)
-            return -1
-        # Convert the char buffer to numpy array
-        memory = np.ctypeslib.as_array(buffer).view(np.uint8)
-
+        result = []        
+        # Read the scannable's memory
+        memory = scannable.read()
+        if memory is None:
+            return None
         # For symbols, only remove special symbols like line endings and reserved bytes
         if symbols:
             condition = (memory <= 32) | (memory >= 127)
