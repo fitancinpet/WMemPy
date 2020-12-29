@@ -54,7 +54,6 @@ class ProcReader:
         # Return the value
         return dtype.value
 
-        
 
 class ProcWriter:
     """

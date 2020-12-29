@@ -16,6 +16,9 @@ class ProcScannable:
     def read_dtype(self):
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
+    def write_dtype(self):
+        raise NotImplementedError('Interface ProcScannable not implemented.')
+
 class ProcPage(ProcScannable):
     """
     Represents a single virtual memory page of a process.
@@ -36,6 +39,10 @@ class ProcPage(ProcScannable):
     # Read any data type from the page
     def read_dtype(self, address, dtype):
         return self.process.reader.dtype(self.base_address + address, dtype)
+
+    # Write any data type into the page
+    def write_dtype(self, address, dtype):
+        return self.process.writer.dtype(self.base_address + address, dtype)
 
     def print(self):        
         print(f'{hex(self.base_address)} - {hex(self.base_address + self.size)}')
@@ -68,6 +75,11 @@ class ProcModule(ProcScannable):
     def read_dtype(self, address, dtype):
         return self.process.reader.dtype(self.base_address + address, dtype)
 
+    # Write any data type into the page
+    def write_dtype(self, address, dtype):
+        return self.process.writer.dtype(self.base_address + address, dtype)
+
+    # Separate name from module path
     def get_name(self):
         return os.path.basename(self.path)
 
