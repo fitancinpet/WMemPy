@@ -141,13 +141,17 @@ class WinProc:
 
     # Compare two processes against each other using common strings
     def compare(self, other):
+        # Stack of first process
         first_entry = [module for module in self.modules if module.get_name().lower() == self.proc_name.lower()]
+        # List all long enough strings and convert them to numpy array for speed
         first = np.array(self.scanner.ASCII_list_arr(first_entry, True, 12))
+        # Same thing for second process
         second_entry = [module for module in other.modules if module.get_name().lower() == other.proc_name.lower()]
         second = np.array(other.scanner.ASCII_list_arr(second_entry, True, 12))
+        # A - B set diff (unique values only)
         first_diff = np.setdiff1d(first, second)
+        # B - A set diff (unique values only)
         second_diff = np.setdiff1d(second, first)
-        first_len = len(first)
-        second_len = len(second)
-        print(f'{self.proc_name} is {len(first_diff)}/{first_len} ({"{:.2f}".format(len(first_diff) / first_len * 100)} %) different from {other.proc_name}')
-        print(f'{other.proc_name} is {len(second_diff)}/{second_len} ({"{:.2f}".format(len(second_diff) / second_len * 100)} %) different from {self.proc_name}')
+        # Print the results, the percentage will almost always be different between (A to B) vs (B to A) due to the sizes
+        print(f'{self.proc_name} is {len(first_diff)}/{len(first)} ({"{:.2f}".format(len(first_diff) / len(first) * 100)} %) different from {other.proc_name}')
+        print(f'{other.proc_name} is {len(second_diff)}/{len(second)} ({"{:.2f}".format(len(second_diff) / len(second) * 100)} %) different from {self.proc_name}')

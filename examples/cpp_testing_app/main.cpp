@@ -39,6 +39,12 @@ void memory_modification(void) {;
 }
 
 void opcode_injection(void) {;
+    /* 
+    The bad_code_detection app detects this because it is allocated on stack.
+    Normally, this code would be dynamically injected from another process to
+    prevent such detection, and the scan would have to also cover executable
+    memory pages (default Python is too slow to do this)
+    */
     int bad_code[] = { 0x83ec8b55,0x565340ec,0x0c758b57,0x8b087d8b,
                        0x348d104d,0xcf3c8dce,0x6f0fd9f7,0x6f0fce04,
                        0x0f08ce4c,0x10ce546f,0xce5c6f0f,0x646f0f18,
@@ -55,6 +61,10 @@ void opcode_injection(void) {;
         src[i] = i;
     };
 
+    /*
+    Basic memory allocation for executable pages, normally, this is easily detectable and would not be used.
+    Usually a code cave would be used instead. 
+    */
     void* address = VirtualAlloc(NULL, sizeof(bad_code), MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     memcpy(address, bad_code, sizeof(bad_code));
 
@@ -70,8 +80,7 @@ void opcode_injection(void) {;
     };
 
     typedef void (*FASTCALL)(void* dst, void* src, int len);
-    FASTCALL fastcall;
-    fastcall = (FASTCALL)address;
+    FASTCALL fastcall = (FASTCALL)address;
     fastcall(dst_mir, src, 64 / 2);
 
     for (int i = 0; i < 64; ++i) {;

@@ -82,6 +82,7 @@ class ProcScanner:
         to_find = self.array_from_ascii(ascii)
         return self.byte_scan(scannable, to_find)
 
+    # Creates a list of all ASCII strings in an array of scannables
     def ASCII_list_arr(self, scannable_arr, symbols=False, min_length=3):
         result = []
         for scannable in scannable_arr:
@@ -90,7 +91,7 @@ class ProcScanner:
                 result.append(tmp)
         return [item for sublist in result for item in sublist]
 
-    # Creates a list of all ASCII strings in the scannable
+    # Creates a list of all ASCII strings in a scannable
     def ASCII_list(self, scannable, symbols=False, min_length=3):
         result = []        
         # Read the scannable's memory
