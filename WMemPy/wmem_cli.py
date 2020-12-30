@@ -186,15 +186,17 @@ def run_app(name, id, list, modules, pages, aob, text, list_text, view, compare)
 @click.option('-l', '--list', is_flag=True, default=False, help='List all processes running.')
 @click.option('-m', '--modules', is_flag=True, default=False, help='List all modules of given process.')
 @click.option('-p', '--pages', is_flag=True, default=False, help='List all valid pages of given process.')
-@click.option('-a', '--aob', help='List all valid pages of given process.')
-@click.option('-w', '--where', help='List all valid pages of given process.')
-@click.option('-b', '--base', default=16, show_default=True, help='List all valid pages of given process.')
-@click.option('-s', '--separator', default=',', show_default=True, help='List all valid pages of given process.')
-@click.option('-t', '--text', help='List all valid pages of given process.')
-@click.option('-lt', '--list-text', help='List all valid pages of given process.')
-@click.option('-h', '--hint', help='List all valid pages of given process.')
-@click.option('-v', '--view', help='List all valid pages of given process.')
-@click.option('-c', '--compare', nargs=2, help='List all valid pages of given process.')
+@click.option('-a', '--aob', help='Scan given process against a provided AOB pattern. Use -w to specify what to scan, -b to set base of the pattern and -s to set the separator of the pattern.')
+@click.option('-w', '--where', help='Specifies what to scan (pages, modules, all, specific module).')
+@click.option('-b', '--base', default=16, show_default=True, help='Specifies the base of bytes of the AOB pattern (16 for hex, 10 for decimal).')
+@click.option('-s', '--separator', default=',', show_default=True, help='Specifies the separator of bytes of the AOB pattern.')
+@click.option('-t', '--text', help='Scans given process for a provided string. Use -w to specify what to scan.')
+@click.option('-lt', '--list-text', help='Print all strings in a given process. Provide \' \' as parameter for reasonable strings (length 5 with symbols). '
+              'If you want to specify length and symbol usage yourself, the format is s<number> where s means use symbols, c don\'t and number is minimum length. Example: s6 or c4. '
+              'Use -w to specify what to scan, -h <word> to only show strings that contain <word>.')
+@click.option('-h', '--hint', help='For -lt, specifies <word> that the strings must contain. For -v, speficies <number> address where to start printing the memory (can be decimal or hex).')
+@click.option('-v', '--view', help='Print memory of provided scannable into console. Scannable can be pages, modules, all or specific module name. Use -h <number> to start memory view at provided <number> as address.')
+@click.option('-c', '--compare', nargs=2, help='Compare two processes against each other. Arguments can be either name of the process or process id.')
 def main_app(name, id, list, modules, pages, aob, where, base, separator, text, list_text, hint, view, compare):
     """
     CLI click wrapper for the application.
