@@ -16,7 +16,7 @@ myapp = WinProc(app_name)
 # Check what the app loads
 myapp.print_modules()
 # Get data
-main_entry = [module for module in myapp.modules if module.get_name() == app_name][0]
+main_entry = [module for module in myapp.modules if module.get_name().lower() == app_name.lower()][0]
 
 # Check data for any hardcoded values
 print(f'Checking stack of {main_entry.get_name()} for strings:')

@@ -13,7 +13,7 @@ def array_from_where(process, where):
     elif where == 'modules':
         return process.modules
     elif not (where is None):
-        return [module for module in process.modules if module.get_name() == where]
+        return [module for module in process.modules if module.get_name().lower() == where.lower()]
     else:
         return process.pages
 
@@ -108,9 +108,27 @@ def process_app(process, modules, pages, aob, text, list_text, view):
     if not (view[0] is None):
         return memory_view(process, view)
 
-def run_app(name, id, list, modules, pages, aob, text, list_text, view):
+def get_proc(identifier):
+    try:
+        pid = int(identifier)
+    except Exception:
+        pid = -1
+    return WinProc(identifier, pid)
+
+def compare_procs(first, second):
+    try:
+        first_proc = get_proc(first)
+        second_proc = get_proc(second)
+    except Exception as e:
+        raise click.BadParameter(e)
+    first_proc.compare(second_proc)
+    
+
+def run_app(name, id, list, modules, pages, aob, text, list_text, view, compare):
     if list:
         return WinSys.process_list_print()
+    if compare:
+        return compare_procs(compare[0], compare[1])
     if (name is None) and id == -1:
         raise click.BadParameter('Please specify process to work with.')
     try:
@@ -134,12 +152,13 @@ def run_app(name, id, list, modules, pages, aob, text, list_text, view):
 @click.option('-lt', '--list-text', help='List all valid pages of given process.')
 @click.option('-h', '--hint', help='List all valid pages of given process.')
 @click.option('-v', '--view', help='List all valid pages of given process.')
-def main_app(name, id, list, modules, pages, aob, where, base, separator, text, list_text, hint, view):
+@click.option('-c', '--compare', nargs=2, help='List all valid pages of given process.')
+def main_app(name, id, list, modules, pages, aob, where, base, separator, text, list_text, hint, view, compare):
     """
     CLI click wrapper for the application.
     Everything is forwarded into the main entry point.
     """
-    run_app(name, id, list, modules, pages, [aob, where, base, separator], [text, where], [list_text, where, hint], [view, hint])
+    run_app(name, id, list, modules, pages, [aob, where, base, separator], [text, where], [list_text, where, hint], [view, hint], compare)
 
 def main():
     """

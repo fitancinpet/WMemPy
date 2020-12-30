@@ -3,6 +3,7 @@ from wmem_structs import MEMORY_BASIC_INFORMATION, MODULEINFO
 from wmem_scannable import ProcPage, ProcModule
 from wmem_scanner import ProcScanner
 from wmem_memory import ProcReader, ProcWriter
+import numpy as np
 import win32api
 import win32process
 import win32con
@@ -137,3 +138,16 @@ class WinProc:
     # we need to provide direct access to the handle for ctypes functions that cannot work with the wrapper
     def get_handle(self):
         return self.handle.__int__()
+
+    # Compare two processes against each other using common strings
+    def compare(self, other):
+        first_entry = [module for module in self.modules if module.get_name().lower() == self.proc_name.lower()]
+        first = np.array(self.scanner.ASCII_list_arr(first_entry, True, 12))
+        second_entry = [module for module in other.modules if module.get_name().lower() == other.proc_name.lower()]
+        second = np.array(other.scanner.ASCII_list_arr(second_entry, True, 12))
+        first_diff = np.setdiff1d(first, second)
+        second_diff = np.setdiff1d(second, first)
+        first_len = len(first)
+        second_len = len(second)
+        print(f'{self.proc_name} is {len(first_diff)}/{first_len} ({"{:.2f}".format(len(first_diff) / first_len * 100)} %) different from {other.proc_name}')
+        print(f'{other.proc_name} is {len(second_diff)}/{second_len} ({"{:.2f}".format(len(second_diff) / second_len * 100)} %) different from {self.proc_name}')

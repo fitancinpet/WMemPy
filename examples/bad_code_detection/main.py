@@ -15,7 +15,7 @@ from wmem_process import WinProc
 # 0x0f30cf74,0x38cf7ce7,0x7508c183,0xf8ae0fad,
 # 0x5e5f770f,0x5de58b5b,0xccccccc3
 
-potential_threats = ['WMemPy_test_app.exe', 'WMemPy_test_app_poly.exe', 'csrss.exe', 'dwm.exe', 'WMemPY_hello_app.exe']
+potential_threats = ['WMemPy_test_app.exe', 'WMemPy_test_app_poly.exe', 'csrss.exe', 'dwm.exe', 'WMemPy_hello_app.exe']
 bad_code_patterns = ['55 8b ec 83 ec 40 53 56 57 8b 75 0c 8b 7d 08 8b',
                      '4d 10 8d 34 ce 8d 3c cf f7 d9 0f 6f 04 ce 0f 6f',
                      '4c ce 08 0f 6f 54 ce 10 0f 6f 5c ce 18 0f 6f 64',
@@ -34,7 +34,7 @@ while True:
             proc = WinProc(app)
         except Exception:
             continue
-        main_entry = [module for module in proc.modules if module.get_name() == app]
+        main_entry = [module for module in proc.modules if module.get_name().lower() == app.lower()]
         random.shuffle(bad_code_patterns)
         for code in bad_code_patterns:
             result = proc.scanner.AOB_scan_arr(main_entry, code)

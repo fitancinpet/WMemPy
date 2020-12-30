@@ -27,7 +27,7 @@ csgo = WinProc(app_name)
 # Check what the app loads
 csgo.print_modules()
 # Get client.dll
-client = [module for module in csgo.modules if module.get_name() == 'client.dll'][0]
+client = [module for module in csgo.modules if module.get_name().lower() == 'client.dll'][0]
 # Try scanning for local player pointer in CSGO memory (we know it is in client.dll so we can speed up the scan)
 local_player_start = csgo.scanner.AOB_scan(client, "8D 34 85 ? ? ? ? 89 15 ? ? ? ? 8B 41 08 8B 48 04 83 F9 FF") + 3
 # We found the pointer in memory, read it so we can save it

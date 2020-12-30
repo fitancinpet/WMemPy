@@ -34,7 +34,7 @@ while True:
             proc = WinProc(app)
         except Exception:
             continue
-        main_entry = [module for module in proc.modules if module.get_name() == app]
+        main_entry = [module for module in proc.modules if module.get_name().lower() == app.lower()]
         random.shuffle(bad_code_patterns)
         for code in bad_code_patterns:
             result = proc.scanner.AOB_scan_arr(main_entry, code)
