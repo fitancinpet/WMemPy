@@ -1,6 +1,7 @@
 import sys
 import click
 import numpy as np
+import configparser
 from wmem_process import WinProc
 from wmem_system import WinSys
 
@@ -125,9 +126,37 @@ def aob_scan(process, aob):
     else:
         print(f'Pattern found at: {hex(scannable.base_address)} + {hex(result)} = {hex(scannable.base_address + result)}')
 
+def dump_section(process, config):
+    scannable_array = array_from_where(process, config['scannable'])
+    pattern = config['pattern']
+    try:
+        separator = config['separator']
+    except Exception:
+        separator = ' '
+    try:
+        base = int(config['base'])
+    except Exception:
+        base = 16
+    result, scannable = process.scanner.AOB_scan_arr(scannable_array, pattern, base, separator)
+    print(f'{config.name} = {hex(result)}')
+
+def dump_memory(process, dump):
+    config_parser = configparser.ConfigParser(allow_no_value=True)
+    with open(dump) as f:
+        try:
+            config_parser.read_file(f)
+        except Exception:
+            raise click.BadParameter(f'Config file {dump} does not exist or has invalid format.')
+        print(f'Dumping memory of {process.proc_name} for patterns from {dump}')
+        for section in config_parser._sections:
+            try:
+                dump_section(process, config_parser[section])
+            except Exception:
+                raise click.BadParameter(f'Config file {dump} does not exist or has invalid format.')
+
 # Processes all the parameters given, also makes sure to only do one task
 # if multiple parameters are provided, also sets the order of actions
-def process_app(process, modules, pages, aob, text, list_text, view):
+def process_app(process, modules, pages, aob, text, list_text, view, dump):
     # Modules can be listed on top of other commands
     if modules:
         process.print_modules()
@@ -143,6 +172,8 @@ def process_app(process, modules, pages, aob, text, list_text, view):
         return text_list(process, list_text)
     if not (view[0] is None):
         return memory_view(process, view)
+    if not (dump is None):
+        return dump_memory(process, dump)
 
 # Retrieves process from identifier (whether it is name or PID)
 def get_proc(identifier):
@@ -162,7 +193,7 @@ def compare_procs(first, second):
     first_proc.compare(second_proc)
     
 # Helper to run the app from parameters
-def run_app(name, id, list, modules, pages, aob, text, list_text, view, compare):
+def run_app(name, id, list, modules, pages, aob, text, list_text, view, compare, dump):
     # If we want to list processes, do it and stop
     if list:
         return WinSys.process_list_print()
@@ -177,7 +208,7 @@ def run_app(name, id, list, modules, pages, aob, text, list_text, view, compare)
         process = WinProc(name, id)
     except Exception as e:
         raise click.BadParameter(e)
-    process_app(process, modules, pages, aob, text, list_text, view)
+    process_app(process, modules, pages, aob, text, list_text, view, dump)
 
 @click.command()
 @click.version_option(version='1.0')
@@ -197,12 +228,13 @@ def run_app(name, id, list, modules, pages, aob, text, list_text, view, compare)
 @click.option('-h', '--hint', help='For -lt, specifies <word> that the strings must contain. For -v, speficies <number> address where to start printing the memory (can be decimal or hex).')
 @click.option('-v', '--view', help='Print memory of provided scannable into console. Scannable can be pages, modules, all or specific module name. Use -h <number> to start memory view at provided <number> as address.')
 @click.option('-c', '--compare', nargs=2, help='Compare two processes against each other. Arguments can be either name of the process or process id.')
-def main_app(name, id, list, modules, pages, aob, where, base, separator, text, list_text, hint, view, compare):
+@click.option('-d', '--dump', help='Dump offsets of process from a config file.')
+def main_app(name, id, list, modules, pages, aob, where, base, separator, text, list_text, hint, view, compare, dump):
     """
     CLI click wrapper for the application.
     Everything is forwarded into the main entry point.
     """
-    run_app(name, id, list, modules, pages, [aob, where, base, separator], [text, where], [list_text, where, hint], [view, hint], compare)
+    run_app(name, id, list, modules, pages, [aob, where, base, separator], [text, where], [list_text, where, hint], [view, hint], compare, dump)
 
 def main():
     """
