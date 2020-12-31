@@ -1,11 +1,9 @@
-# pylint: disable=import-error,wrong-import-position,broad-except
+# pylint: disable=broad-except
 """Example of simple malicious code detection"""
 import sys
 import random
 import time
-sys.path.insert(1, 'WMemPy')
-sys.path.insert(1, '../../WMemPy')
-from wmem_process import WinProc
+from wmempy.wmem_process import WinProc
 
 # Bad code:
 # 0x83ec8b55,0x565340ec,0x0c758b57,0x8b087d8b,

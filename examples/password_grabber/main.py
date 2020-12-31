@@ -1,9 +1,6 @@
-# pylint: disable=import-error,wrong-import-position
 """Example of simple CSGO wallhack"""
 import sys
-sys.path.insert(1, 'WMemPy')
-sys.path.insert(1, '../../WMemPy')
-from wmem_process import WinProc
+from wmempy.wmem_process import WinProc
 
 
 def print_sensitive_region(arr, index):

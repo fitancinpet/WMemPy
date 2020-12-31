@@ -1,11 +1,9 @@
-# pylint: disable=import-error,wrong-import-position,broad-except
+# pylint: disable=broad-except
 """Example of simple CSGO wallhack"""
 import sys
 import ctypes
 from ctypes import wintypes
-sys.path.insert(1, 'WMemPy')
-sys.path.insert(1, '../../WMemPy')
-from wmem_process import WinProc
+from wmempy.wmem_process import WinProc
 
 
 def get_team_string(team_num):
