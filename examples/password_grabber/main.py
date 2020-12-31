@@ -1,3 +1,5 @@
+# pylint: disable=import-error,wrong-import-position
+"""Example of simple CSGO wallhack"""
 import sys
 sys.path.insert(1, 'WMemPy')
 sys.path.insert(1, '../../WMemPy')
@@ -5,18 +7,22 @@ from wmem_process import WinProc
 
 
 def print_sensitive_region(arr, index):
+    """
+    Prints other strings in proximity of the current one
+    """
     print('--------------')
     for i in range(index - 10, index + 10):
         print(arr[i])
 
 # Password grabber - checks the strings around the word password, email, username
 # Name of application to target
-app_name = 'WMemPy_test_app.exe'
-myapp = WinProc(app_name)
+APP_NAME = 'WMemPy_test_app.exe'
+myapp = WinProc(APP_NAME)
 # Check what the app loads
 myapp.print_modules()
 # Get data
-main_entry = [module for module in myapp.modules if module.get_name().lower() == app_name.lower()][0]
+main_entry = [module for module in myapp.modules
+              if module.get_name().lower() == APP_NAME.lower()][0]
 
 # Check data for any hardcoded values
 print(f'Checking stack of {main_entry.get_name()} for strings:')
@@ -31,9 +37,9 @@ print('')
 # Check full memory (including heap)
 print('Checking memory for sensitive words:')
 memory = myapp.scanner.ASCII_list_arr(myapp.pages, True, 5)
-sensitive_index = 0
+SENSITIVE_INDEX = 0
 for word in memory:
-    sensitive_index += 1
+    SENSITIVE_INDEX += 1
     # If sensitive word is found, print everything around it
     if ('password' in word) or ('email' in word) or ('login' in word):
-        print_sensitive_region(memory, sensitive_index)
+        print_sensitive_region(memory, SENSITIVE_INDEX)

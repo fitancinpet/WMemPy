@@ -1,26 +1,43 @@
-import win32process
+# pylint: disable=c-extension-no-member
+"""Scannable classes are used to represent live memory of a process that can be scanned"""
+import os
 import ctypes
+import win32process
 import numpy as np
 from wmem_structs import MODULEINFO
-import os
 
 class ProcScannable:
     """
     Scannable interface has to be implemented if you want to execute scans on the class.
     """
     def get_bounds(self):
+        """
+        Get base address and size of the scannable (valid memory region)
+        """
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
     def read(self):
+        """
+        Reads valid memory region of the scannable
+        """
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
     def read_from(self, address):
+        """
+        Reads valid memory region of the scannable from given offset
+        """
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
     def read_dtype(self, address, dtype):
+        """
+        Reads memory from address and interprets it as data type
+        """
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
     def write_dtype(self, address, dtype):
+        """
+        Writes data type to memory at given address
+        """
         raise NotImplementedError('Interface ProcScannable not implemented.')
 
 class ProcPage(ProcScannable):
@@ -32,30 +49,44 @@ class ProcPage(ProcScannable):
         self.base_address = base
         self.size = size
 
-    # Page is represnted by base address and size only, this should never represent physical memory page
     def get_bounds(self):
+        """
+        Page is represnted by base address and size only, this should never
+        represent physical memory page
+        """
         return [self.base_address, self.size]
 
-    # Read the entire page
     def read(self):
+        """
+        Read the entire page
+        """
         return self.process.reader.byte_arr(self.base_address, self.size)
 
-    # Read the entire page
     def read_from(self, address):
+        """
+        Read the entire page
+        """
         size = self.size - address
         if size > 0:
             return self.process.reader.byte_arr(self.base_address + address, self.size - address)
         return np.empty(shape=(0, 0))
 
-    # Read any data type from the page
     def read_dtype(self, address, dtype):
+        """
+        Read any data type from the page
+        """
         return self.process.reader.dtype(self.base_address + address, dtype)
 
-    # Write any data type into the page
     def write_dtype(self, address, dtype):
+        """
+        Write any data type into the page
+        """
         return self.process.writer.dtype(self.base_address + address, dtype)
 
-    def print(self):        
+    def print(self):
+        """
+        Prints it's memory region
+        """
         print(f'{hex(self.base_address)} - {hex(self.base_address + self.size)}')
 
 
@@ -67,40 +98,56 @@ class ProcModule(ProcScannable):
         self.process = proc
         self.handle = handle
         self.path = win32process.GetModuleFileNameEx(self.process.handle, self.handle)
-        mi = MODULEINFO()
-        ctypes.windll.psapi.GetModuleInformation(self.process.get_handle(), self.handle, ctypes.byref(mi), ctypes.sizeof(mi))
-        self.base_address = mi.lpBaseOfDll
-        self.size = mi.SizeOfImage
-        self.entry = mi.EntryPoint
+        minfo = MODULEINFO()
+        ctypes.windll.psapi.GetModuleInformation(self.process.get_handle(), self.handle,
+                                                 ctypes.byref(minfo), ctypes.sizeof(minfo))
+        self.base_address = minfo.lpBaseOfDll
+        self.size = minfo.SizeOfImage
+        self.entry = minfo.EntryPoint
 
-    # Module has path (name), base address, size and entrypoint
-    # Entrypoint is what is called when the dll/so is loaded, but it can be obfuscated
     def get_bounds(self):
+        """
+        Module has path (name), base address, size and entrypoint
+        Entrypoint is what is called when the dll/so is loaded, but it can be obfuscated
+        """
         return [self.base_address, self.size]
 
-    # Read the entire module
     def read(self):
+        """
+        Read the entire module
+        """
         return self.process.reader.byte_arr(self.base_address, self.size)
 
-    # Read the entire page
     def read_from(self, address):
+        """
+        Read the entire page
+        """
         size = self.size - address
         if size > 0:
             return self.process.reader.byte_arr(self.base_address + address, self.size - address)
         return np.empty(shape=(0, 0))
 
-    # Read any data type from the page
     def read_dtype(self, address, dtype):
+        """
+        Read any data type from the page
+        """
         return self.process.reader.dtype(self.base_address + address, dtype)
 
-    # Write any data type into the page
     def write_dtype(self, address, dtype):
+        """
+        Write any data type into the page
+        """
         return self.process.writer.dtype(self.base_address + address, dtype)
 
-    # Separate name from module path
     def get_name(self):
+        """
+        Separate name from module path
+        """
         return os.path.basename(self.path)
 
-    def print(self):        
+    def print(self):
+        """
+        Prints it's name and memory region
+        """
         print(self.path)
         print(f'{hex(self.base_address)} - {hex(self.base_address + self.size)}')

@@ -1,3 +1,5 @@
+# pylint: disable=wildcard-import,too-few-public-methods,unused-wildcard-import,invalid-name
+"""Structures defined by Microsoft (WinApi standart)"""
 import ctypes
 from ctypes.wintypes import *
 

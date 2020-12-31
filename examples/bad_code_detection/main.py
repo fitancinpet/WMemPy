@@ -1,3 +1,5 @@
+# pylint: disable=import-error,wrong-import-position,broad-except
+"""Example of simple malicious code detection"""
 import sys
 import random
 import time
@@ -16,7 +18,8 @@ from wmem_process import WinProc
 # 0x5e5f770f,0x5de58b5b,0xccccccc3
 
 # Application list that we will be scanning
-potential_threats = ['WMemPy_test_app.exe', 'WMemPy_test_app_poly.exe', 'csrss.exe', 'dwm.exe', 'WMemPy_hello_app.exe']
+potential_threats = ['WMemPy_test_app.exe', 'WMemPy_test_app_poly.exe',
+                     'csrss.exe', 'dwm.exe', 'WMemPy_hello_app.exe']
 # Memory patterns extracted from bad code
 bad_code_patterns = ['55 8b ec 83 ec 40 53 56 57 8b 75 0c 8b 7d 08 8b',
                      '4d 10 8d 34 ce 8d 3c cf f7 d9 0f 6f 04 ce 0f 6f',
@@ -38,18 +41,20 @@ while True:
             proc = WinProc(app)
         except Exception:
             continue
-        # Normally the scan would be more extensive (for example also across all pages) but Python is too slow for this
+        # Normally the scan would be more extensive (for example also across all pages)
+        # but Python is too slow for this
         main_entry = [module for module in proc.modules if module.get_name().lower() == app.lower()]
         # Check in different order each time to make scan time more consistent
         random.shuffle(bad_code_patterns)
         for code in bad_code_patterns:
             # Scan each code against the stack, if we find bad code, add it to results
             result = proc.scanner.AOB_scan_arr(main_entry, code)
-            if not (result[0] is None):
+            if not result[0] is None:
                 matches.append([result, code])
         # 4/7 ths is enough to trigger detection
         if len(matches) >= 4:
-            print(f'Detected application with bad code: {proc.proc_name} ({len(matches)}/{len(bad_code_patterns)} matches)')
+            print(f'Detected application with bad code: {proc.proc_name} ('
+                  f'{len(matches)}/{len(bad_code_patterns)} matches)')
             print('Matches:')
             print('-------------------')
             for match in matches:
@@ -57,7 +62,8 @@ while True:
             print('-------------------')
         # If there is at least 1 match, mark as suspicious
         elif len(matches) >= 1:
-            print(f'Application {proc.proc_name} is suspicious, but only has a few matches ({len(matches)}/{len(bad_code_patterns)} matches)')
+            print(f'Application {proc.proc_name} is suspicious, but only has a few '
+                  f'matches ({len(matches)}/{len(bad_code_patterns)} matches)')
             print('Matches:')
             print('-------------------')
             for match in matches:
