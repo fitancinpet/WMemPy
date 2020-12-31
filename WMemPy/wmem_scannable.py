@@ -4,7 +4,7 @@ import os
 import ctypes
 import win32process
 import numpy as np
-from wmem_structs import MODULEINFO
+from wmempy.wmem_structs import MODULEINFO
 
 class ProcScannable:
     """

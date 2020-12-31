@@ -2,11 +2,11 @@
 """Provides a wrapper for Windows Process defined by PID"""
 from ctypes import *
 from ctypes.wintypes import *
-from wmem_system import WinSys as WSys
-from wmem_structs import MEMORY_BASIC_INFORMATION, MODULEINFO
-from wmem_scannable import ProcPage, ProcModule
-from wmem_scanner import ProcScanner
-from wmem_memory import ProcReader, ProcWriter
+from wmempy.wmem_system import WinSys as WSys
+from wmempy.wmem_structs import MEMORY_BASIC_INFORMATION, MODULEINFO
+from wmempy.wmem_scannable import ProcPage, ProcModule
+from wmempy.wmem_scanner import ProcScanner
+from wmempy.wmem_memory import ProcReader, ProcWriter
 import numpy as np
 import win32api
 import win32process

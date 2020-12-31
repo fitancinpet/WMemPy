@@ -4,8 +4,8 @@ import sys
 import configparser
 import click
 import numpy as np
-from wmem_process import WinProc
-from wmem_system import WinSys
+from wmempy.wmem_process import WinProc
+from wmempy.wmem_system import WinSys
 
 
 def array_from_where(process, where):
@@ -292,5 +292,8 @@ def main_app(name, pid, p_list, modules, pages, aob, where, base, separator, tex
     run_app(name, pid, p_list, modules, pages, [aob, where, base, separator], [text, where],
             [list_text, where, hint], [view, hint], compare, dump)
 
-if __name__ == '__main__':
+def main():
+    """
+    Helper for package manager.
+    """
     main_app(prog_name='wmempy')
