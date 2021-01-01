@@ -6,6 +6,8 @@ import pytest
 import subprocess
 from wmempy.wmem_scannable import ProcScannable, ProcPage, ProcModule
 from wmempy.wmem_process import WinProc
+# Tests not covered here are covered by live memory tests
+
 
 def test_winsys_proc_scannable():
     """Test that interface is abstract"""

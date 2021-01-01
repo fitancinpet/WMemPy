@@ -27,7 +27,7 @@ def readable(line):
     """
     condition = (line <= 32) | (line >= 127)
     line = np.where(condition, 46, line)
-    return line.tobytes().decode('ASCII')
+    return line.tobytes().decode('ASCII').replace('\x00', '')
 
 def memory_view_print(memory, address):
     """
@@ -39,6 +39,7 @@ def memory_view_print(memory, address):
     # Make sure numpy prints the entire array and doesn't short it
     # Also convert the hex to nice format (remove 0x in front)
     np.set_printoptions(formatter={'int':lambda x:'{:02x}'.format(x)}, threshold=sys.maxsize)
+    address = address // 16 * 16
     # Print and also keep up with the address
     for line in reshaped:
         print(hex(address), line, readable(line))

@@ -1,5 +1,7 @@
 import pytest
 from wmempy.wmem_system import WinSys
+# Tests not covered here are covered by live memory tests
+
 
 @pytest.mark.parametrize('process', ('System Idle Process', 'System', 'dwm.exe', 'explorer.exe'))
 def test_winsys_process_list(process):
