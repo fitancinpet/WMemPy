@@ -15,6 +15,8 @@ setup(
     url='https://github.com/fitancinpet/WMemPy',
     packages=['wmempy'],
     install_requires=['pywin32', 'click>=6', 'numpy==1.19.3'],
+    setup_requires=['pytest-runner', 'pywin32', 'click>=6', 'numpy==1.19.3'],
+    tests_require=['pytest', 'pywin32', 'click>=6', 'numpy==1.19.3', 'flexmock', 'sphinx'],
     python_requires='>=3.6',
     classifiers=[
         'Intended Audience :: Developers',
