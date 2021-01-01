@@ -4,7 +4,7 @@ from wmempy.wmem_system import WinSys
 
 
 @pytest.mark.parametrize('process', ('System Idle Process', 'System', 'dwm.exe', 'explorer.exe'))
-def test_winsys_process_list(process):
+def test_winsys_process_list_live(process):
     """Test whether there are common processes in process list"""
     plist = WinSys.process_list()
     process_in_plist = [proc for proc in plist if proc[1] == process]
@@ -12,7 +12,7 @@ def test_winsys_process_list(process):
     assert len(plist) > 3
 
 @pytest.mark.parametrize('process', ('System Idle Process', 'System', 'dwm.exe', 'explorer.exe'))
-def test_winsys_process_list_print(capsys, process):
+def test_winsys_process_list_print_live(capsys, process):
     """Test whether there are common processes in process list print"""
     WinSys.process_list_print()
     captured = capsys.readouterr()
