@@ -18,8 +18,7 @@ def run_process(request, exe_name):
     """Starts the example exe that contains data necessary for testing"""
     return TmpProcess(request, exe_name)
 
-def get_example_app(request):
-    exe_name = 'WMemPy_test_app.exe'
+def get_example_app(request, exe_name='WMemPy_test_app.exe'):
     live_app = run_process(request, exe_name)
     proc = WinProc(exe_name)
     assert proc.process_valid()
