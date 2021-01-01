@@ -1,5 +1,4 @@
 import pytest
-from wmempy.wmem_process import WinProc
 from helpers import run_process, get_example_app, hand_example_app
 # These tests are running on live memory (utilizing common Windows processes and example exes)
 # These tests also test if your system can use the application (if your Windows is compatible)
@@ -45,7 +44,6 @@ def test_AOB_scans_live(request):
     # Live memory end
     hand_example_app(proc, live_app)
 
-
 def test_ASCII_scans_live(request):
     """Test whether ASCII_scan and ASCII_scan_arr can be performed"""
     proc, live_app = get_example_app(request)
@@ -66,5 +64,27 @@ def test_ASCII_scans_live(request):
     result = proc.scanner.ASCII_scan(entry[0], 'UIFFFFs0006wXX4')
     assert result is None
 
+    # Live memory end
+    hand_example_app(proc, live_app)
+
+def test_ASCII_lists_live(request):
+    """Test whether ASCII_list and ASCII_list_arr can be performed"""
+    proc, live_app = get_example_app(request)
+    # Live memory start
+    entry = [module for module in proc.modules if module.get_name().lower() == proc.proc_name.lower()]
+    # Array version
+    result = proc.scanner.ASCII_list_arr(entry, False, 10)
+    assert 'UI1874s41Q6w5s4' in result
+    assert 'credentials' in result
+    assert 'TerminateProcess' in result
+    assert 'VirtualProtect' in result
+    assert 'ExitThread' in result
+    # Single scannable version
+    result = proc.scanner.ASCII_list(entry[0], False, 10)
+    assert 'UI1874s41Q6w5s4' in result
+    assert 'credentials' in result
+    assert 'TerminateProcess' in result
+    assert 'VirtualProtect' in result
+    assert 'ExitThread' in result
     # Live memory end
     hand_example_app(proc, live_app)
