@@ -101,7 +101,7 @@ def text_list(process, list_text):
         raise click.BadParameter('Invalid text list parameters.')
     # Print all strings
     print(f'Listing ASCII strings {"with" if symbols else "without"} symbols, minimum '
-           'length is {min_length}, hint is {hint}:')
+          f'length is {min_length}, hint is {hint}:')
     print('-------------------')
     if not hint is None:
         result = [word for word in result if hint in word]
@@ -157,7 +157,10 @@ def dump_section(process, config):
     except Exception:
         base = 16
     result, _ = process.scanner.AOB_scan_arr(scannable_array, pattern, base, separator)
-    print(f'{config.name} = {hex(result)}')
+    if result is None:
+        print(f'{config.name} = {-1}')
+    else:
+        print(f'{config.name} = {hex(result)}')
 
 def dump_memory(process, dump):
     """
@@ -202,7 +205,10 @@ def process_app(process, modules, pages, aob, text, list_text, view, dump):
         memory_view(process, view)
         return
     if not dump is None:
-        dump_memory(process, dump)
+        try:
+            dump_memory(process, dump)
+        except Exception:
+            raise click.BadParameter(f'Config file {dump} does not exist or has invalid format.')
         return
 
 
