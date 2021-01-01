@@ -49,8 +49,10 @@ https://pypi.org/project/wmempy/#files
 
 Extract the sources if needed and go into the WMemPy folder (main project folder). From there, to build documentations, just do:
 
+<pre>
 cd docs
 make html
+</pre>
 
 The HTML pages are in _build/html.
 
