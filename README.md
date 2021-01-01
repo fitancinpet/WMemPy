@@ -51,7 +51,7 @@ Extract the sources if needed and go into the WMemPy folder (main project folder
 
 <pre>
 cd docs
-make html
+.\make.bat html
 </pre>
 
 The HTML pages are in _build/html.
