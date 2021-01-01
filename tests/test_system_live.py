@@ -1,6 +1,7 @@
 import pytest
 from wmempy.wmem_system import WinSys
-# Tests not covered here are covered by live memory tests
+# These tests are running on live memory (utilizing common Windows processes and example exes)
+# These tests also test if your system can use the application (if your Windows is compatible)
 
 
 @pytest.mark.parametrize('process', ('System Idle Process', 'System', 'dwm.exe', 'explorer.exe'))

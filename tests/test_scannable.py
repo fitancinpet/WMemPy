@@ -1,11 +1,8 @@
 import ctypes
 from flexmock import flexmock
 import numpy as np
-import os
 import pytest
-import subprocess
 from wmempy.wmem_scannable import ProcScannable, ProcPage, ProcModule
-from wmempy.wmem_process import WinProc
 # Tests not covered here are covered by live memory tests
 
 
@@ -51,16 +48,3 @@ def test_winsys_proc_page_mocked(capsys):
     data = scannable.write_dtype(30, dtype)
     assert (10 + 30) in data
     assert ctypes.sizeof(dtype) in data
-
-def test_winsys_proc_page_live(request):
-    """Test that ProcPage works with live memory"""
-    exe_name = 'WMemPy_test_app.exe'
-    exe_path = os.path.join(request.fspath.dirname, 'exes', exe_name)
-    process = subprocess.Popen([exe_path])
-    proc = WinProc(exe_name)
-    assert proc.process_valid()
-    # Live memory start
-
-    # Live memory end
-    process.terminate()
-    assert not proc.process_valid()
