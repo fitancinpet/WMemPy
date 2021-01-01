@@ -56,6 +56,17 @@ cd docs
 
 The HTML pages are in _build/html.
 
+Tests
+-----
+
+To run tests, make sure you are on Windows as the application only supports that and in the project directory run:
+
+<pre>
+python setup.py test
+</pre>
+
+There are two types of tests, non-live and live. The live tests work with live Windows memory and have _live at the end.
+
 CLI Usage
 ---------
 <pre>
