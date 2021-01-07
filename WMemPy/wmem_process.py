@@ -19,6 +19,12 @@ class WinProc:
     Represents a single Windows Process.
     """
     def __init__(self, process_name, process_id = -1):
+        """
+        :param process_name: name of the process to wrap around
+        :param process_id: pid of the process to wrap around
+        :type process_name: string
+        :type process_id: int
+        """
         self.modules = []
         self.pages = []
         # Get all processes that match PID or name
@@ -132,6 +138,9 @@ class WinProc:
     def process_valid(self):
         """
         Process is valid if we have an open handle and it is still running
+
+        :returns: whether the process is valid or not
+        :rtype: boolean
         """
         return self.handle and win32process.GetExitCodeProcess(self.handle) == WSys.PROCESS_RUNNING
 
@@ -140,6 +149,9 @@ class WinProc:
         Fills self.modules with currently loaded modules of the process. Modules (typically
         .dll/.so) can be loaded by the app itself or injected by others into the process. This
         method will not detect stealth injection techniques of modules (manual mapping, scrambling)
+
+        :returns: ProcModule list that is used by the process
+        :rtype: list of ProcModules
         """
         self.modules = []
         # https://docs.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocessmodulesex
@@ -152,6 +164,9 @@ class WinProc:
         Fills self.pages with currently valid virtual memory pages of the process. This is useful
         for full memory scans, since the address space is limited only by the architecture and
         this way, we can only scan used address space that we have access to
+
+        :returns: ProcPage list that is used by the process
+        :rtype: list of ProcPages
         """
         self.pages = []
         current_base = 0
@@ -170,6 +185,9 @@ class WinProc:
         Since handle is wrapped in PyHandle so that it is automatically closed (CloseHandle)
         upon destruction we need to provide direct access to the handle for ctypes functions
         that cannot work with the wrapper
+
+        :returns: OpenProcess handle of the process
+        :rtype: int
         """
         return self.handle.__int__()
 

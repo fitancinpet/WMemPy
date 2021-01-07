@@ -8,12 +8,8 @@ from helpers import run_process, get_example_app, hand_example_app
 
 def test_win_proc_basic_live(request, capsys):
     """Test basic WinProc functionality"""
-    dwm = WinProc('dwm.exe')
-    assert dwm.process_valid()
-    assert len(dwm.modules) > 0
-    assert len(dwm.pages) > 0
     with pytest.raises(Exception):
-        dwm = WinProc('System')
+        syst_proc = WinProc('System')
     proc, live_app = get_example_app(request)
     # Live memory start
     assert len(proc.modules) > 0

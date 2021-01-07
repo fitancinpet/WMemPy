@@ -17,6 +17,9 @@ class WinSys:
         """
         Retrieve all running processes (PID, name)
         https://docs.microsoft.com/en-us/windows/win32/wmisdk/calling-a-wmi-method
+        
+        :returns: List of all currently running processes
+        :rtype: list of [int, string]
         """
         wmi = GetObject('winmgmts:')
         processes = wmi.InstancesOf('Win32_Process')

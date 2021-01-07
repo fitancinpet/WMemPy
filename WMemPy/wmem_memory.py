@@ -13,6 +13,13 @@ class ProcReader:
     def byte_arr(self, address, size):
         """
         Read a byte array of the process
+
+        :param address: index in the process virtual memory to read from
+        :param size: amount of bytes to read
+        :type address: int
+        :type size: int
+        :returns: array of bytes that were read from the memory
+        :rtype: numpy.array of uint8
         """
         # Allocate buffer for single ReadProcessMemory operation
         buffer = ctypes.create_string_buffer(size)
@@ -39,6 +46,13 @@ class ProcReader:
     def dtype(self, address, dtype):
         """
         Read any ctypes data type of the process
+
+        :param address: index at which the value should be read
+        :param dtype: the data type into which the memory should be reinterpreted
+        :type address: int
+        :type dtype: ctypes data type class
+        :returns: the data type that was read
+        :rtype: ctypes data type
         """
         # Get reference for ReadProcessMemory operation
         buffer = ctypes.byref(dtype)
@@ -75,6 +89,13 @@ class ProcWriter:
     def dtype(self, address, dtype):
         """
         Write any ctypes data type into the process
+
+        :param address: index at which the value should be read
+        :param dtype: the data type that should be interpreted into memory
+        :type address: int
+        :type dtype: ctypes data type class
+        :returns: the data type to be written into memory
+        :rtype: ctypes data type
         """
         # Get reference for WriteProcessMemory operation
         buffer = ctypes.byref(dtype)
