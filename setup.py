@@ -5,10 +5,10 @@ with open('README.md') as f:
 
 setup(
     name='wmempy',
-    version='0.1.0',
+    version='0.1.1',
     description='WinApi Memory Access Application',
     long_description=long_description,
-    long_description_content_type='text/markdown'
+    long_description_content_type='text/markdown',
     author='Petr Ančinec',
     author_email='ancinpet@fit.cvut.cz',
     keywords='click,winapi,openprocess',
