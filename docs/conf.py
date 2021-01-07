@@ -26,7 +26,7 @@ copyright = '2021, Petr Ancinec'
 author = 'Petr Ancinec'
 
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = '0.1.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,7 +41,7 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = []
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

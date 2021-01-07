@@ -5,7 +5,7 @@ with open('README.md') as f:
 
 setup(
     name='wmempy',
-    version='0.1.1',
+    version='0.1.2',
     description='WinApi Memory Access Application',
     long_description=long_description,
     long_description_content_type='text/markdown',
